@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: deployment-ricplt-xapp-onboarder-http
+  name: deployment-ricplt-xapp-onboarder-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployment-ricplt-xapp-onboarder-http
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deployment-ricplt-xapp-onboarder-http
+    spec:
+      containers:
+      - image: chartmuseum/chartmuseum
+        name: chartmuseum
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: charts
+            mountPath: /charts
+        env:
+          - name: DEBUG
+            value: "1"
+          - name: STORAGE
+            value: "local"
+          - name: STORAGE_LOCAL_ROOTDIR
+            value: "/charts"
+      volumes:
+        - name: charts
+          hostPath:
+            path: /root/charts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: service-ricplt-xapp-onboarder-http
+  name: service-ricplt-xapp-onboarder-http
+spec:
+  ports:
+  - name: default
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: deployment-ricplt-xapp-onboarder-http
+  type: ClusterIP
